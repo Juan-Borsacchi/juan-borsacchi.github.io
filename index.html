@@ -374,6 +374,27 @@
             background-color: #6d5d94;
         }
 
+        .projeto-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .projeto-card h3 {
+            margin-top: 0;
+        }
+
+        .projeto-card a {
+            display: inline-block;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+
         /* Responsividade para telas médias */
         @media (max-width: 1000px) {
             .conteudo {
@@ -786,6 +807,10 @@
             </div>
         </div>
     </section>
+    <div id="meus-projetos">
+        <!-- Os repositórios vão aparecer aqui automaticamente -->
+        <p>Carregando projetos...</p>
+    </div>
     <section class="contato">
         <div class="conteudo">
             <div class="texto">
@@ -825,6 +850,41 @@
     </script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6018944170573078"
         crossorigin="anonymous"></script>
+
+    <script>
+        // 1. Coloque seu usuário do GitHub aqui (ex: 'joaosilva')
+        const usuarioGithub = 'Juan-Borsacchi';
+
+        const url = `https://api.github.com/users/${usuarioGithub}/repos`;
+        const container = document.getElementById('meus-projetos');
+
+        fetch(url)
+            .then(resposta => resposta.json())
+            .then(repositorios => {
+                // Limpa a mensagem de "Carregando..."
+                container.innerHTML = '';
+
+                // Pega apenas os repositórios públicos e organiza (opcional)
+                repositorios.forEach(repo => {
+                    // Cria o cartão do projeto
+                    const cartao = document.createElement('div');
+                    cartao.className = 'projeto-card'; // Classe para estilizar no CSS depois
+
+                    cartao.innerHTML = `
+                    <h3>${repo.name}</h3>
+                    <p>${repo.description || 'Sem descrição definida'}</p>
+                    <a href="${repo.html_url}" target="_blank">Ver no GitHub</a>
+                `;
+
+                    container.appendChild(cartao);
+                });
+            })
+            .catch(erro => {
+                console.error('Erro ao buscar repositórios:', erro);
+                container.innerHTML = '<p>Erro ao carregar projetos.</p>';
+            });
+    </script>
+
 </body>
 
 </html>
