@@ -374,70 +374,25 @@
             background-color: #6d5d94;
         }
 
-        /* Fundo da página */
-        body {
-            background-color: #cbdcf7;
-            /* Azul claro do fundo da imagem */
-            font-family: sans-serif;
+        .projeto-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
         }
 
-        /* Container que segura os cards */
-        .grid-projetos {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            padding: 20px;
+        .projeto-card h3 {
+            margin-top: 0;
         }
 
-        /* Estilo do Card Individual */
-        .card {
-            background-color: #fff;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Área da Imagem */
-        .card-image {
-            width: 100%;
-            height: 200px;
-            background-color: #eee;
-            object-fit: cover;
-        }
-
-        /* Conteúdo do texto */
-        .card-content {
-            padding: 20px;
-        }
-
-        .card-content h3 {
-            text-transform: uppercase;
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .card-content p {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            /* Limita o texto a 3 linhas */
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* Badges de Linguagem (opcional) */
-        .tech-icon {
+        .projeto-card a {
+            display: inline-block;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #007bff;
             font-weight: bold;
-            color: #555;
-            margin-bottom: 10px;
-            display: block;
         }
-
 
 
         /* Responsividade para telas médias */
@@ -852,11 +807,10 @@
             </div>
         </div>
     </section>
-    <section class="portfolio">
-        <div id="repos-container" class="grid-projetos">
-            <!-- O JavaScript vai injetar os cards aqui -->
-        </div>
-    </section>
+    <div id="meus-projetos">
+        <!-- Os repositórios vão aparecer aqui automaticamente -->
+        <p>Carregando projetos...</p>
+    </div>
     <section class="contato">
         <div class="conteudo">
             <div class="texto">
@@ -899,40 +853,36 @@
 
     <script>
         // 1. Coloque seu usuário do GitHub aqui (ex: 'joaosilva')
-        const user = 'Juan-Borsacchi';
+        const usuarioGithub = 'Juan-Borsacchi';
 
-        async function carregarRepos() {
-            const response = await fetch(`https://github.com{user}/repos?sort=updated`);
-            const repos = await response.json();
-            const container = document.getElementById('repos-container');
+        const url = `https://api.github.com/users/${usuarioGithub}/repos`;
+        const container = document.getElementById('meus-projetos');
 
-            container.innerHTML = '';
+        fetch(url)
+            .then(resposta => resposta.json())
+            .then(repositorios => {
+                // Limpa a mensagem de "Carregando..."
+                container.innerHTML = '';
 
-            repos.forEach(repo => {
-                // Criamos o HTML do card seguindo o seu design
-                const card = document.createElement('div');
-                card.className = 'card';
+                // Pega apenas os repositórios públicos e organiza (opcional)
+                repositorios.forEach(repo => {
+                    // Cria o cartão do projeto
+                    const cartao = document.createElement('div');
+                    cartao.className = 'projeto-card'; // Classe para estilizar no CSS depois
 
-                // URL da imagem de capa do GitHub (Social Preview)
-                const imgUrl = `https://githubusercontent.com{user}/${repo.name}/main/thumb.png`;
-                // DICA: Se você colocar uma imagem chamada thumb.png na raiz de cada repo, ela aparece ali.
+                    cartao.innerHTML = `
+                    <h3>${repo.name}</h3>
+                    <p>${repo.description || 'Sem descrição definida'}</p>
+                    <a href="${repo.html_url}" target="_blank">Ver no GitHub</a>
+                `;
 
-                card.innerHTML = `
-            <img src="${imgUrl}" onerror="this.src='https://placeholder.com'" class="card-image">
-            <div class="card-content">
-                <span class="tech-icon"><b>💻 ${repo.language || 'Tech'}</b></span>
-                <h3>${repo.name.replace(/-/g, ' ')}</h3>
-                <p>${repo.description || 'Sem descrição disponível no momento.'}</p>
-                <br>
-                <a href="${repo.html_url}" target="_blank" style="text-decoration:none; color: #007bff; font-weight:bold;">VER PROJETO →</a>
-            </div>
-        `;
-                container.appendChild(card);
+                    container.appendChild(cartao);
+                });
+            })
+            .catch(erro => {
+                console.error('Erro ao buscar repositórios:', erro);
+                container.innerHTML = '<p>Erro ao carregar projetos.</p>';
             });
-        }
-
-        carregarRepos();
-
     </script>
 
 </body>
