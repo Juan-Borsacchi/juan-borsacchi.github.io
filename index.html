@@ -394,6 +394,26 @@
             font-weight: bold;
         }
 
+        .imagem {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            /* Ajustado para ser responsivo */
+            height: 270px;
+            overflow: hidden;
+            /* Corta o que sobrar da imagem */
+            border-radius: 16px 16px 0 0;
+        }
+
+        .projeto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Faz a imagem cobrir o espaço sem achatar */
+            transition: transform 0.3s ease;
+        }
+
+
 
         /* Responsividade para telas médias */
         @media (max-width: 1000px) {
@@ -837,53 +857,48 @@
     <button onclick="voltarAoTopo()" class="botao-topo">↑</button>
 
     <script>
+        async function carregarProjetos() {
+            const usuario = 'SEU_USUARIO_AQUI'; // <--- COLOQUE SEU NOME DE USUÁRIO AQUI
+            const lista = document.querySelector('.projetos-lista');
 
-        // Voltar para o topo ao clicar no botão
-        function voltarAoTopo() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            try {
+                const response = await fetch(`https://github.com{usuario}/repos?sort=created`);
+                const repos = await response.json();
+
+                lista.innerHTML = ''; // Limpa a lista antes de carregar
+
+                repos.forEach(repo => {
+                    // Monta a URL da imagem (procurando por thumb.png na raiz do repo)
+                    const urlImagem = `https://githubusercontent.com{usuario}/${repo.name}/main/thumb.png`;
+
+                    const li = document.createElement('li');
+                    li.className = 'projeto';
+
+                    li.innerHTML = `
+                    <div class="imagem">
+                        <img src="${urlImagem}" 
+                             onerror="this.src='https://placehold.co'" 
+                             alt="${repo.name}">
+                    </div>
+                    <div class="texto-limitado">
+                        <h3 style="margin: 15px 0 5px 0;">${repo.name.replace(/-/g, ' ')}</h3>
+                        <p>${repo.description || 'Descrição não disponível.'}</p>
+                        <a href="${repo.html_url}" target="_blank" class="botao-repo">
+                            <i class="fab fa-github"></i> Ver Repositório
+                        </a>
+                    </div>
+                `;
+                    lista.appendChild(li);
+                });
+            } catch (erro) {
+                console.error('Erro ao carregar repositórios:', erro);
+            }
         }
 
-        // Forçar o scroll para o topo ao recarregar
-        window.onbeforeunload = function () {
-            window.scrollTo(0, 0);
-        };
+        // Inicia a função
+        carregarProjetos();
     </script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6018944170573078"
-        crossorigin="anonymous"></script>
 
-    <script>
-        // 1. Coloque seu usuário do GitHub aqui (ex: 'joaosilva')
-        const usuarioGithub = 'Juan-Borsacchi';
-
-        const url = `https://api.github.com/users/${usuarioGithub}/repos`;
-        const container = document.getElementById('meus-projetos');
-
-        fetch(url)
-            .then(resposta => resposta.json())
-            .then(repositorios => {
-                // Limpa a mensagem de "Carregando..."
-                container.innerHTML = '';
-
-                // Pega apenas os repositórios públicos e organiza (opcional)
-                repositorios.forEach(repo => {
-                    // Cria o cartão do projeto
-                    const cartao = document.createElement('div');
-                    cartao.className = 'projeto-card'; // Classe para estilizar no CSS depois
-
-                    cartao.innerHTML = `
-                    <h3>${repo.name}</h3>
-                    <p>${repo.description || 'Sem descrição definida'}</p>
-                    <a href="${repo.html_url}" target="_blank">Ver no GitHub</a>
-                `;
-
-                    container.appendChild(cartao);
-                });
-            })
-            .catch(erro => {
-                console.error('Erro ao buscar repositórios:', erro);
-                container.innerHTML = '<p>Erro ao carregar projetos.</p>';
-            });
-    </script>
 
 </body>
 
